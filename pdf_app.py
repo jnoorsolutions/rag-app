@@ -1,11 +1,39 @@
 import streamlit as st
 import pandas as pd
 import traceback
+import hashlib
+import os
 import user_code as uc
 
 st.set_page_config(page_title="Document RAG App", page_icon="📘", layout="wide")
 
 st.title("📘 RAG - Question Answering App")
+
+_DB_PATH = "faiss_db/document"
+
+# ---------------- File hash check -----------------
+def file_already_vectorized(file_path: str) -> bool:
+    """Check if this exact file has already been vectorized using hash."""
+    if not os.path.exists(_DB_PATH):
+        return False
+
+    # compute hash of uploaded file
+    with open(file_path, "rb") as f:
+        file_hash = hashlib.md5(f.read()).hexdigest()
+
+    hash_file = os.path.join(_DB_PATH, "file_hash.txt")
+    if os.path.exists(hash_file):
+        with open(hash_file, "r") as hf:
+            saved_hash = hf.read().strip()
+        if saved_hash == file_hash:
+            return True
+
+    # save new hash
+    with open(hash_file, "w") as hf:
+        hf.write(file_hash)
+
+    return False
+
 
 # ---------------- Sidebar ----------------
 with st.sidebar:
@@ -28,20 +56,26 @@ with st.sidebar:
             with open(save_path, "wb") as f:
                 f.write(uploaded_file.read())
             
-            with st.spinner("Building vector DB..."):
-                try:
-                    result = uc.build_vector_store(save_path)
-                    if result is None:
-                        st.warning("⚠️ This file (or another document) has already been vectorized. Using existing Vector DB.")
-                    else:
-                        st.session_state["uploaded_file_path"] = save_path
-                        st.success("✅ Vector DB created successfully!")
-                except Exception:
-                    st.error("❌ Failed to build vector DB.")
-                    st.code(traceback.format_exc())
+            # check if already vectorized
+            if file_already_vectorized(save_path):
+                st.warning("⚠️ This file (or another document) has already been vectorized. Using existing Vector DB.")
+            else:
+                with st.spinner("Building vector DB..."):
+                    try:
+                        result = uc.build_vector_store(save_path)
+                        if result is None:
+                            st.warning("⚠️ This file (or another document) has already been vectorized. Using existing Vector DB.")
+                        else:
+                            st.session_state["uploaded_file_path"] = save_path
+                            st.success("✅ Vector DB created successfully!")
+                    except Exception:
+                        st.error("❌ Failed to build vector DB.")
+                        st.code(traceback.format_exc())
+
 
 # ---------------- Tabs ----------------
 tab1, tab2 = st.tabs(["🔤 Ask a Question", "📄 CSV Batch"])
+
 
 # ---- Tab 1: Single Question ----
 with tab1:
@@ -59,6 +93,7 @@ with tab1:
         except Exception:
             st.error("❌ Error running prediction.")
             st.code(traceback.format_exc())
+
 
 # ---- Tab 2: Batch CSV ----
 with tab2:
