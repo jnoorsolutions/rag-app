@@ -20,6 +20,9 @@ It allows users to:
 
 ---
 
+## 🧪 Application Url
+https://rag-app-8fu5ywvvsgappl6favhyjtd.streamlit.app/
+
 ## 🛠️ Tech Stack  
 - **Frontend**: [Streamlit](https://streamlit.io/)  
 - **Backend**: [LangChain](https://www.langchain.com/)  
