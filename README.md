@@ -31,7 +31,7 @@ It allows users to:
 
 ## 📂 Project Structure  
 ```
-.
+rag-app/
 ├── pdf_app.py        # Frontend (Streamlit UI)
 ├── user_code.py      # Backend (Vector DB, QA, Batch Processing)
 ├── requirements.txt  # Project dependencies
