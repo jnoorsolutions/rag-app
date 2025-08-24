@@ -1,0 +1,27 @@
+# Frontend
+streamlit
+pandas
+
+# Error handling
+traceback2
+
+# Environment variables
+python-dotenv
+
+# LangChain core + community + integrations
+langchain
+langchain-core
+langchain-community
+langchain-groq
+langchain-huggingface
+
+# Vector DB
+faiss-cpu
+
+# NLP / Embeddings
+sentence-transformers
+huggingface-hub
+
+# Document loaders
+pypdf
+docx2txt
